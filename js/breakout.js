@@ -24,10 +24,10 @@ Math.randRange = function(min, max){
 }
 
 COLLISIONS = {
-	0 : 'bodyTop',
-	1 : 'bodyBottom',
-	2 : 'bodyLeft',
-	3 : 'bodyRight'
+	bodyTop : 1,
+	bodyBottom : 2,
+	bodyLeft : 3,
+	bodyRight : 4
 };
 
 var Breakout = function(container, debug){
@@ -148,8 +148,8 @@ Breakout.prototype._makeBall = function(){
 		r : 10,
 		w : 10,
 		h : 10,
-		speed : 200,
-		angle : this.angleToRad(45*5)
+		speed : 100,
+		angle : this.angleToRad(45)
 	};
 	this.ball.pos = {
 		x : this.player.pos.x + this.player.w / 2,
@@ -221,7 +221,7 @@ Breakout.prototype._buildPlayer = function(){
 	this.fillStyle = this.player.color;
 	this.strokeStyle = 'rgb(0,0,0)';
 	var pos = {
-		x : this.player.pos.x - this.player.w,
+		x : this.player.pos.x,
 		y : this.player.pos.y
 	};
 	this.canvas.fillRect(pos.x, pos.y, this.player.w, this.player.h);
@@ -275,15 +275,28 @@ Breakout.prototype._getGridCoords = function(pos){
 Breakout.prototype._ballCollision = function(){
 	var collision = null;
 	var p = {
-		x : this.ball.pos.x,
-		y : this.ball.pos.y
+		x : this.ball.pos.x + this.ball.r,
+		y : this.ball.pos.y + this.ball.r
 	};
 
 	// body
-	if(p.x >= this.bodySize.w || p.x <= 0 || p.y >= this.bodySize.h || p.y <= 0){
-		collision = true;
+	if(p.x >= this.bodySize.w){
+		collision = COLLISIONS.bodyRight;
+		p.x = this.bodySize.w;
 	}
-
+	if(p.x <= 0){
+		collision = COLLISIONS.bodyLeft;
+		p.x = 0;
+	}
+	if(p.y >= this.bodySize.h){
+		collision = COLLISIONS.bodyBottom;
+		p.y = this.bodySize.h;
+	}
+	if(p.y <= 0){
+		collision = COLLISIONS.bodyTop;
+		p.y = 0;
+	}
+	/*
 	var gCoords = this._getGridCoords(p);
 	if(!!gCoords){
 		if(!!this.grid[gCoords.y][gCoords.x].visible){
@@ -300,7 +313,7 @@ Breakout.prototype._ballCollision = function(){
 	){
 		collision = true;
 	}
-
+	*/
 	return collision;
 };
 
@@ -308,10 +321,28 @@ Breakout.prototype._blockHit = function(coords){
 	this.grid[coords.y][coords.x].visible = false;
 };
 
-Breakout.prototype._ballCollisionAngle = function(){
-	var a = 1
-	//this.ball.angle = this.ball.angle + this.ball.angle/2;
-	this.ball.angle = this.ball.angle + this.angleToRad( Math.randRange(100, 180) );
+Breakout.prototype._ballCollisionAngle = function(collision){
+	var b;
+	switch(collision){
+		case COLLISIONS.bodyLeft :
+			console.log('left')
+			b = (this.ball.angle*1.5);
+			break;
+		case COLLISIONS.bodyTop :
+			console.log('top')
+			b = this.ball.angle*-1;
+			break;
+		case COLLISIONS.bodyRight :
+			console.log('right')
+			b = (this.ball.angle*0.5);
+			break;
+		case COLLISIONS.bodyBottom :
+			console.log('bottom')
+			b = (this.ball.angle*-1);
+			break;
+	}
+	this.ball.angle = b;
+	//this.ball.angle = this.ball.angle + this.angleToRad( Math.randRange(100, 180) );
 };
 
 Breakout.prototype._ballMove = function(collision){
@@ -319,7 +350,7 @@ Breakout.prototype._ballMove = function(collision){
 
 	// collision
 	if(!!collision){
-		this._ballCollisionAngle();
+		this._ballCollisionAngle(collision);
 	}
 
 	if(this.oldBallAngle != this.ball.angle || !this.oldBallAngle){
@@ -332,10 +363,10 @@ Breakout.prototype._ballMove = function(collision){
 		this.oldBallAngle = this.ball.angle;
 	}
 
-	var delta = (d - this._startTime) / 500;
+	var delta = (d - this._startTime) / 300;
 
-	this.ball.pos.x += this.x * delta;
-	this.ball.pos.y += this.y * delta;
+	this.ball.pos.x -= this.x * delta;
+	this.ball.pos.y -= this.y * delta;
 	this._startTime = d;
 };
 
