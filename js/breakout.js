@@ -86,6 +86,7 @@ Breakout.prototype._cancelDef = function(e){
 
 Breakout.prototype._prepareConfig = function(){
 	this._bodySize();
+	this.middle = { x : this.bodySize.w/2, y : this.bodySize.h/2 };
 	this.config = {
 		grid : {
 			w : 0,
@@ -149,7 +150,7 @@ Breakout.prototype._makeBall = function(){
 		w : 10,
 		h : 10,
 		speed : 100,
-		angle : this.angleToRad(45)
+		angle : this.angleToRad(225)
 	};
 	this.ball.pos = {
 		x : this.player.pos.x + this.player.w / 2,
@@ -323,26 +324,35 @@ Breakout.prototype._blockHit = function(coords){
 
 Breakout.prototype._ballCollisionAngle = function(collision){
 	var b;
+	if(collision == this._oldCollision){ return; }
 	switch(collision){
 		case COLLISIONS.bodyLeft :
 			console.log('left')
-			b = (this.ball.angle*1.5);
+			//b = Math.atan2( (this.middle.y - this.bodySize.h/2), (this.middle.x - 0) );
+			b = Math.atan2( (this.bodySize.h - 0), (0, 0) );
+			console.log(this.radToAngle(b));
 			break;
 		case COLLISIONS.bodyTop :
 			console.log('top')
-			b = this.ball.angle*-1;
+			//b = Math.atan2( (this.middle.y - this.bodySize.h), (this.middle.x - this.bodySize.w) );
+			b = Math.atan2( (this.bodySize.h - this.bodySize.h), (0 - this.bodySize.w) );
+			console.log(this.radToAngle(b));
 			break;
 		case COLLISIONS.bodyRight :
 			console.log('right')
-			b = (this.ball.angle*0.5);
+			//b = (this.ball.angle*0.5);
+			b = Math.atan2( (this.middle.y - this.bodySize.h/2), (this.middle.x - this.bodySize.w) );
 			break;
 		case COLLISIONS.bodyBottom :
 			console.log('bottom')
-			b = (this.ball.angle*-1);
+			//b = (this.ball.angle*-1);
+			b = Math.atan2( (this.middle.y - 0), (this.middle.x - this.bodySize.w/2) );
 			break;
 	}
-	this.ball.angle = b;
+	this._oldCollision = collision;
+	//this.ball.angle = b;
 	//this.ball.angle = this.ball.angle + this.angleToRad( Math.randRange(100, 180) );
+	this.ball.angle = this.angleToRad( this.radToAngle(this.ball.angle) + (180 - 2*this.radToAngle(b)) );
 };
 
 Breakout.prototype._ballMove = function(collision){
@@ -365,8 +375,8 @@ Breakout.prototype._ballMove = function(collision){
 
 	var delta = (d - this._startTime) / 300;
 
-	this.ball.pos.x -= this.x * delta;
-	this.ball.pos.y -= this.y * delta;
+	this.ball.pos.x += this.x * delta;
+	this.ball.pos.y += this.y * delta;
 	this._startTime = d;
 };
 
