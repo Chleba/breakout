@@ -27,7 +27,8 @@ COLLISIONS = {
 	bodyTop : 1,
 	bodyBottom : 2,
 	bodyLeft : 3,
-	bodyRight : 4
+	bodyRight : 4,
+	pad : 5
 };
 
 var Breakout = function(container, debug){
@@ -150,7 +151,8 @@ Breakout.prototype._makeBall = function(){
 		w : 10,
 		h : 10,
 		speed : 100,
-		angle : this.angleToRad(225)
+		//angle : this.angleToRad(45)
+		angle : Math.atan2( (0-this.bodySize.h), (0 - this.bodySize.w/2) )
 	};
 	this.ball.pos = {
 		x : this.player.pos.x + this.player.w / 2,
@@ -184,7 +186,10 @@ Breakout.prototype._start = function(){
 };
 
 Breakout.prototype._ballLaunch = function(){
-
+	var a = this.ball.pos.x + this.ball.speed * Math.cos(this.ball.angle);
+	var b = this.ball.pos.y + this.ball.speed * Math.sin(this.ball.angle);
+	this.x = a - this.ball.pos.x;
+	this.y = b - this.ball.pos.y;
 };
 
 Breakout.prototype._tick = function(){
@@ -276,26 +281,26 @@ Breakout.prototype._getGridCoords = function(pos){
 Breakout.prototype._ballCollision = function(){
 	var collision = null;
 	var p = {
-		x : this.ball.pos.x + this.ball.r,
-		y : this.ball.pos.y + this.ball.r
+		x : this.ball.pos.x,
+		y : this.ball.pos.y
 	};
 
 	// body
 	if(p.x >= this.bodySize.w){
 		collision = COLLISIONS.bodyRight;
-		p.x = this.bodySize.w;
+		//p.x = this.bodySize.w;
 	}
-	if(p.x <= 0){
+	if(p.x + this.ball.r*2 <= 0){
 		collision = COLLISIONS.bodyLeft;
-		p.x = 0;
+		//p.x = 0;
 	}
 	if(p.y >= this.bodySize.h){
 		collision = COLLISIONS.bodyBottom;
-		p.y = this.bodySize.h;
+		//p.y = this.bodySize.h;
 	}
-	if(p.y <= 0){
+	if(p.y + this.ball.r*2 <= 0){
 		collision = COLLISIONS.bodyTop;
-		p.y = 0;
+		//p.y = 0;
 	}
 	/*
 	var gCoords = this._getGridCoords(p);
@@ -305,16 +310,15 @@ Breakout.prototype._ballCollision = function(){
 			collision = true;
 		}
 	}
-
+	*/
 	if(
 		p.x >= this.player.pos.x &&
 		p.x <= this.player.pos.x + this.player.w &&
 		p.y >= this.player.pos.y &&
 		p.y <= this.player.pos.y + this.player.h
 	){
-		collision = true;
+		collision = COLLISIONS.pad;
 	}
-	*/
 	return collision;
 };
 
@@ -327,42 +331,74 @@ Breakout.prototype._ballCollisionAngle = function(collision){
 	if(collision == this._oldCollision){ return; }
 	switch(collision){
 		case COLLISIONS.bodyLeft :
-			console.log('left')
+			console.log('left');
+			this.ball.pos.x *= -1;
+			this.x *= -1;
 			//b = Math.atan2( (this.middle.y - this.bodySize.h/2), (this.middle.x - 0) );
-			b = Math.atan2( (this.bodySize.h - 0), (0, 0) );
-			console.log(this.radToAngle(b));
+			//b = Math.atan2( (this.bodySize.h - 0), (0 - 0) );
 			break;
 		case COLLISIONS.bodyTop :
 			console.log('top')
-			//b = Math.atan2( (this.middle.y - this.bodySize.h), (this.middle.x - this.bodySize.w) );
-			b = Math.atan2( (this.bodySize.h - this.bodySize.h), (0 - this.bodySize.w) );
-			console.log(this.radToAngle(b));
+			this.ball.pos.y *= -1;
+			//this.ball.pos.y -= 2*((this.ball.pos.y) - (this.bodySize.h-1));
+			this.y *= -1;
+			//b = Math.atan2( (this.middle.y - this.bodySize.h), (this.middle.x - this.bodySize.w/2) );
+			//b = Math.atan2( (this.bodySize.h - this.bodySize.h), (0 - this.bodySize.w) );
 			break;
 		case COLLISIONS.bodyRight :
 			console.log('right')
-			//b = (this.ball.angle*0.5);
-			b = Math.atan2( (this.middle.y - this.bodySize.h/2), (this.middle.x - this.bodySize.w) );
+			this.ball.pos.x -= 2*((this.ball.pos.x) - (this.bodySize.w -1));
+			this.x *= -1;
+			//b = Math.atan2( (this.middle.y - this.bodySize.h/2), (this.middle.x - this.bodySize.w) );
+			//b = Math.atan2( (0 - this.bodySize.h), (this.bodySize.w - this.bodySize.w) );
 			break;
 		case COLLISIONS.bodyBottom :
 			console.log('bottom')
-			//b = (this.ball.angle*-1);
-			b = Math.atan2( (this.middle.y - 0), (this.middle.x - this.bodySize.w/2) );
+			this.ball.pos.y -= 2*( (this.ball.pos.y) - (this.bodySize.h-1) );
+			this.y *= -1;
+			//b = Math.atan2( (this.middle.y - 0), (this.middle.x - this.bodySize.w/2) );
+			//b = Math.atan2( (0 - 0), (this.bodySize.w - 0) );
+			break;
+		case COLLISIONS.pad :
+			if (this.ball.pos.x < 2 + this.player.w && this.ball.pos.x >= 4 + this.player.w) {
+		        intersectX = 4 + this.player.w; // (duh)
+		        intersectY = this.ball.pos.y - ((this.ball.pos.x - (4 + this.player.w)) * (ballY - newBallY)) / (ballX - newBallX);
+		        if (intersectY >= this.player.pos.y && intersectY <= this.player.pos.y + this.player.h) {
+		            relativeIntersectY = (paddle1Y + (PADDLEHEIGHT / 2)) - intersectY;
+		            bounceAngle = (relativeIntersectY / (PADDLEHEIGHT / 2)) * (Math.PI / 2 - MAXBOUNCEANGLE);
+		            ballSpeed = Math.sqrt(ballVx * ballVx + ballVy * ballVy);
+		            ballTravelLeft = (newBallY - intersectY) / (newBallY - ballY);
+		            ballVx = ballSpeed * Math.cos(bounceAngle);
+		            ballVy = ballSpeed * -Math.sin(bounceAngle);
+		            newBallX = intersectX + ballTravelLeft * ballSpeed * Math.cos(bounceAngle);
+		            newBallY = intersectY + ballTravelLeft * ballSpeed * Math.sin(bounceAngle);
+		        }
+		    }
 			break;
 	}
 	this._oldCollision = collision;
-	//this.ball.angle = b;
-	//this.ball.angle = this.ball.angle + this.angleToRad( Math.randRange(100, 180) );
-	this.ball.angle = this.angleToRad( this.radToAngle(this.ball.angle) + (180 - 2*this.radToAngle(b)) );
+	/*
+	var c = this.ball.angle - b;
+	var angle = this.angleToRad( this.radToAngle(this.ball.angle) + (180 - 2*this.radToAngle(b)) );
+	this.ball.angle = angle;
+	*/
 };
 
 Breakout.prototype._ballMove = function(collision){
 	var d = new Date().getTime();
+
+	var delta = (d - this._startTime) / 300;
+
+	this.ball.pos.x += this.x * delta;
+	this.ball.pos.y += this.y * delta;
+	this._startTime = d;
 
 	// collision
 	if(!!collision){
 		this._ballCollisionAngle(collision);
 	}
 
+	/*
 	if(this.oldBallAngle != this.ball.angle || !this.oldBallAngle){
 		var a = this.ball.pos.x + this.ball.speed * Math.cos(this.ball.angle);
 		var b = this.ball.pos.y + this.ball.speed * Math.sin(this.ball.angle);
@@ -372,12 +408,7 @@ Breakout.prototype._ballMove = function(collision){
 	if(!this.oldBallAngle){
 		this.oldBallAngle = this.ball.angle;
 	}
-
-	var delta = (d - this._startTime) / 300;
-
-	this.ball.pos.x += this.x * delta;
-	this.ball.pos.y += this.y * delta;
-	this._startTime = d;
+	*/
 };
 
 Breakout.prototype._clearCanvas = function(){
