@@ -1,4 +1,9 @@
 
+Math.randRange = function(min, max){
+	var rand = (Math.floor(Math.random() * (min-max+1))+min)*-1;
+	return rand
+}
+
 var Breakout = JAK.ClassMaker.makeClass({
 	NAME : 'Breakout'
 });
@@ -12,6 +17,7 @@ Breakout.prototype.$constructor = function(root){
 	this.timekeeper = JAK.Timekeeper.getInstance();
 
 	this._config();
+	this._makeGrid();
 	this._build();
 	this._link();
 };
@@ -23,11 +29,19 @@ Breakout.prototype._config = function(){
 		WIDTH : 600,
 		HEIGHT : 400,
 		BALLDIAMETER : 11,
-		PADDLEWIDTH : 80,
-		PADDLEHEIGHT : 12,
+		PADDLEWIDTH : 60,
+		PADDLEHEIGHT : 10,
 		PADDLEOFFSET : 4,
 		PADDLEMAXSPEED : (1000/1000),
-		MAXBOUNCEANGLE : (Math.PI/12)
+		MAXBOUNCEANGLE : (Math.PI/12),
+		grid : {
+			w : 40,
+			h : 10
+		}
+	};
+	this.config.gridItem = {
+		w : this.config.WIDTH / this.config.grid.w,
+		h : this.config.HEIGHT / this.config.grid.w
 	};
 
 	this.lastTime = new Date().getTime();
@@ -82,7 +96,23 @@ Breakout.prototype._build = function(){
 	// canvas append
 	this.dom.root.appendChild(this.dom.canvas);
 	this.canvasPos = JAK.DOM.getBoxPosition(this.dom.canvas);
+
 	this._start();
+};
+
+Breakout.prototype._makeGrid = function(){
+	this.grid = [];
+	for(var i=0;i<this.config.grid.h;i++){
+		g = [];
+		for(var j=0;j<this.config.grid.w;j++){
+			var obj = {
+				visible : true,
+				color : 'rgb('+Math.randRange(0,255)+','+Math.randRange(0,255)+','+Math.randRange(0,255)+')'
+			}
+			g.push(obj);
+		}
+		this.grid.push(g);
+	}
 };
 
 Breakout.prototype._start = function(){
@@ -109,15 +139,7 @@ Breakout.prototype._update = function(ms){
 	this._setBallPos(pos);
 };
 
-Breakout.prototype._updateBall = function(ms){
-	var newPos = {
-		x : 0,
-		y : 0
-	};
-	newPos.x = this.ball.pos.x + this.x*ms;
-	newPos.y = this.ball.pos.y + this.y*ms;
-	
-	// Top and bottom edges, simply bounce
+Breakout.prototype._edgeCollision = function(newPos){
 	if(newPos.y < 0) {
 		newPos.y = -newPos.y;
 		this.y = -this.y;
@@ -131,7 +153,10 @@ Breakout.prototype._updateBall = function(ms){
 		newPos.x = -newPos.x;
 		this.x = -this.x;
 	}
-	
+	return newPos;
+};
+
+Breakout.prototype._padCollision = function(newPos){
 	if(newPos.y > this.config.HEIGHT-this.config.PADDLEOFFSET-this.player.h && this.ball.pos.y <= this.config.HEIGHT-this.config.PADDLEOFFSET-this.player.h) {
 		var intersectX = this.ball.pos.x - ((this.ball.pos.y - (this.config.HEIGHT-this.config.PADDLEOFFSET-this.player.h))*(this.ball.pos.x-newPos.x))/(this.ball.pos.y - newPos.y);
 		var intersectY = this.config.HEIGHT-this.config.PADDLEOFFSET-this.player.h;
@@ -147,23 +172,63 @@ Breakout.prototype._updateBall = function(ms){
 			newPos.y = intersectY - ballTravelLeft*ballSpeed*Math.sin(bounceAngle);
 		}
 	}
+	return newPos;
+};
 
-	/*
-	if(newPos.x > this.config.WIDTH-this.config.PADDLEOFFSET-this.player.w && this.ball.pos.x <= this.config.WIDTH-this.config.PADDLEOFFSET-this.player.w) {
-		var intersectX = this.config.WIDTH-this.config.PADDLEOFFSET-this.player.w; // (duh)
-		var intersectY = this.ball.pos.y - ((this.ball.pos.x - (this.config.WIDTH-this.config.PADDLEOFFSET-this.player.w))*(this.ball.pos.y-newPos.y))/(this.ball.pos.x - newPos.x);
-		if(intersectY >= this.player.pos.y && intersectY <= this.player.pos.y+this.player.h) {
-			var relativeIntersectY = (this.player.pos.y+(this.player.h/2)) - intersectY;
-			var bounceAngle = (relativeIntersectY/(this.player.h/2)) * (Math.PI/2 - this.config.MAXBOUNCEANGLE);
-			var ballSpeed = Math.sqrt(this.x*this.x + this.y*this.y);
-			var ballTravelLeft = (newPos.y-intersectY)/(newPos.y-this.ball.pos.y);
-			this.x = ballSpeed*Math.cos(bounceAngle)*-1;
-			this.y = ballSpeed*Math.sin(bounceAngle)*-1;
-			newPos.x = intersectX - ballTravelLeft*ballSpeed*Math.cos(bounceAngle);
-			newPos.y = intersectY - ballTravelLeft*ballSpeed*Math.sin(bounceAngle);
+Breakout.prototype._getGridCoords = function(pos){
+	var maxHeight = this.config.gridItem.h * this.config.grid.h;
+	var coords = null;
+	if(pos.y <= maxHeight && pos.y >= 0 && pos.x >= 0 && pos.x <= this.config.WIDTH){
+		coords = {};
+		coords.x = Math.floor(pos.x / this.config.gridItem.w);
+		coords.y = Math.floor(pos.y / this.config.gridItem.h);
+	}
+	return coords;
+};
+
+Breakout.prototype._blockHit = function(coords, newPos){
+	var gi = this.config.gridItem;
+
+	var pos = {
+		x : coords.x*this.config.gridItem.w,
+		y : coords.y*this.config.gridItem.h
+	};
+	if(newPos.y <= pos.y+gi.h){
+		console.log(pos)
+		newPos.y = -newPos.y;
+		this.y = -this.y;
+	}/* else if( newPos.y <= pos.y){
+		newPos.y -= 2*((newPos.y+this.ball.r)-(this.config.HEIGHT-1));
+		this.y = -this.y;
+	} else if( newPos.x <= pos.x+gi.w ){
+
+	}*/
+
+	return newPos;
+};
+
+Breakout.prototype._gridCollision = function(newPos){
+	var gCoords = this._getGridCoords(newPos);
+	if(!!gCoords){
+		if(!!this.grid[gCoords.y][gCoords.x].visible){
+			newPos = this._blockHit(gCoords, newPos);
 		}
 	}
-	*/
+	return newPos;
+};
+
+Breakout.prototype._updateBall = function(ms){
+	var newPos = {
+		x : 0,
+		y : 0
+	};
+	newPos.x = this.ball.pos.x + this.x*ms;
+	newPos.y = this.ball.pos.y + this.y*ms;
+	
+	newPos = this._gridCollision(newPos);
+	newPos = this._edgeCollision(newPos);
+	newPos = this._padCollision(newPos);
+
 	return newPos;
 };
 
@@ -173,8 +238,33 @@ Breakout.prototype._clear = function(){
 
 Breakout.prototype._draw = function(){
 	this._clear();
+	this._drawGrid();
 	this._drawPlayer();
 	this._drawBall();
+};
+
+Breakout.prototype._drawGrid = function(){
+	this.canvas.save();
+	this.canvas.strokeStyle = 'rgb(0,0,0)';
+	for(var i=0;i<this.grid.length;i++){
+		for(var j=0;j<this.grid[i].length;j++){
+			var item = this.grid[i][j];
+			if(!!item.visible){
+				var size = {
+					w : this.config.gridItem.w,
+					h : this.config.gridItem.h
+				};
+				var pos = {
+					x : j*size.w,
+					y : i*size.h
+				};
+				this.canvas.fillStyle = item.color;
+				this.canvas.strokeRect(pos.x, pos.y, size.w, size.h);
+				this.canvas.fillRect(pos.x, pos.y, size.w, size.h);
+			}
+		}
+	}
+	this.canvas.restore();
 };
 
 Breakout.prototype._drawBall = function(){
