@@ -375,25 +375,27 @@ Breakout.prototype._ballCollisionAngle = function(collision, pos){
 		case COLLISIONS.pad :
 			console.log('pad')
 
-	        var intersectY = this.bodySize.h - 4 - this.player.w; // (duh)
+	        //var intersectY = this.bodySize.h - 4 - this.player.h; // (duh)
+	        var intersectY = this.player.pos.y - this.player.h/2;
 	        //var intersectY = this.ball.pos.y - ((this.ball.pos.x - (4 + this.player.w)) * (this.ball.pos.y - pos.y)) / (this.ball.pos.x - pos.x);
 	        var intersectX = this.ball.pos.x - ((this.ball.pos.y - (this.bodySize.h - 4 - this.player.h)) * (this.ball.pos.x - pos.x)) / (this.ball.pos.y - pos.y);
 
 	        console.log(intersectY, intersectX)
-
 	        console.log(this.player.pos)
 
-	        if (intersectY >= this.player.pos.y && intersectY <= this.player.pos.y + this.player.h) {
-	        	console.log('maslo')
-	            relativeIntersectY = (this.player.pos.y + (this.player.h / 2)) - intersectY;
-	            bounceAngle = (relativeIntersectY / (this.player.h / 2)) * (Math.PI / 2 - MAXBOUNCEANGLE);
-	            ballSpeed = Math.sqrt(this.x * this.x + this.y * this.y);
-	            ballTravelLeft = (pos.y - intersectY) / (pos.y - this.ball.pos.y);
-	            this.x = this.ball.speed * -Math.cos(bounceAngle);
-	            this.y = this.ball.speed * Math.sin(bounceAngle);
-	            pos.x = intersectX + ballTravelLeft * this.ball.speed * Math.cos(bounceAngle);
-	            pos.y = intersectY + ballTravelLeft * this.ball.speed * Math.sin(bounceAngle);
-	        }
+	        //if (intersectY >= this.player.pos.y && intersectY <= this.player.pos.y + this.player.h) {
+        	//relativeIntersectX = (this.player.pos.x + (this.player.w / 2)) - intersectX;
+            relativeIntersectY = (this.player.pos.y + (this.player.h / 2)) - intersectY;
+            bounceAngle = (relativeIntersectY / (this.player.h / 2)) * (Math.PI / 2 - MAXBOUNCEANGLE);
+            console.log(this.radToAngle(bounceAngle))
+            //bounceAngleX = (relativeIntersectX / (this.player.w / 2)) * (Math.PI / 2 - MAXBOUNCEANGLE);
+            //ballSpeed = Math.sqrt(this.x * this.x + this.y * this.y);
+            ballTravelLeft = (pos.y - intersectY) / (pos.y - this.ball.pos.y);
+            this.x = this.ball.speed * Math.cos(bounceAngle);
+            this.y = this.ball.speed * Math.sin(bounceAngle);
+            pos.x = intersectX + ballTravelLeft * this.ball.speed * Math.cos(bounceAngle);
+            pos.y = intersectY + ballTravelLeft * this.ball.speed * Math.sin(bounceAngle);
+	        //}
 			break;
 	}
 	this._oldCollision = collision;
