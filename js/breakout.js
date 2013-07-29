@@ -4,10 +4,6 @@ Math.randRange = function(min, max){
 	return rand
 }
 
-Math._round = function(num){
-	return (0.5 + num) >>> 0;
-};
-
 var Breakout = JAK.ClassMaker.makeClass({
 	NAME : 'Breakout'
 });
@@ -138,7 +134,7 @@ Breakout.prototype._setBallPos = function(pos){
 
 Breakout.prototype._tick = function(){
 	var d = new Date().getTime();
-	var ms = (d - this.lastTime) / 3;
+	var ms = (d - this.lastTime) / 2.5;
 	this.lastTime = d;
 
 	this._update(ms);
