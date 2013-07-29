@@ -6,20 +6,27 @@
 	</head>
 	<body>
 		<style>
-			canvas { display:block; margin:0 auto; border:1px solid #000; transform: transale3d(0,0,0);  }
+			canvas { display:block; margin:0 auto; border:1px solid #000; transform:translate3d(0,0,0); -webkit-transform:translate3d(0,0,0); }
 		</style>
 		
+		<!-- lib -->
 		<script type="text/javascript" src="./js/lib/stats.js"></script>
 		<script type="text/javascript" src="./js/lib/jak.js"></script>
 		<script type="text/javascript" src="./js/lib/timekeeper.js"></script>
 		<script type="text/javascript" src="./js/lib/particles1.js"></script>
 		<script type="text/javascript" src="./js/lib/util.js"></script>
+
+		<!-- game -->
+		<script type="text/javascript" src="./js/grid.js"></script>
+		<script type="text/javascript" src="./js/ball.js"></script>
+		<script type="text/javascript" src="./js/player.js"></script>
 		<script type="text/javascript" src="./js/breakout.js"></script>
 
-		<div id="container">
-		</div>
+		<!-- game container -->
+		<div id="container"></div>
+
 		<script type="text/javascript">
-			var bGame = new Breakout('container', true);
+			var bGame = new Breakout.Game('container');
 		</script>
 	</body>
 </html>
