@@ -117,6 +117,7 @@ Breakout.prototype._makeGrid = function(){
 
 Breakout.prototype._start = function(){
 	//this._tick()
+	this.explode = new Explo(this.dom.canvas);
 	this.timekeeper.addListener(this, '_tick', 1);
 };
 
@@ -188,22 +189,23 @@ Breakout.prototype._getGridCoords = function(pos){
 
 Breakout.prototype._blockHit = function(coords, newPos){
 	var gi = this.config.gridItem;
-
+	this.grid[coords.y][coords.x].visible = false;
+	this.explode.boom(newPos);
 	var pos = {
 		x : coords.x*this.config.gridItem.w,
 		y : coords.y*this.config.gridItem.h
 	};
 	if(newPos.y <= pos.y+gi.h){
-		console.log(pos)
-		newPos.y = -newPos.y;
+		//newPos.y = -newPos.y;
 		this.y = -this.y;
-	}/* else if( newPos.y <= pos.y){
-		newPos.y -= 2*((newPos.y+this.ball.r)-(this.config.HEIGHT-1));
+	} else if( newPos.y <= pos.y){
+		//newPos.y -= 2*((newPos.y+this.ball.r)-(this.config.HEIGHT-1));
 		this.y = -this.y;
 	} else if( newPos.x <= pos.x+gi.w ){
-
-	}*/
-
+		this.x = -this.x
+	} else if (newPos.x >= pos.x){
+		this.x = -this.x
+	}
 	return newPos;
 };
 
@@ -225,8 +227,8 @@ Breakout.prototype._updateBall = function(ms){
 	newPos.x = this.ball.pos.x + this.x*ms;
 	newPos.y = this.ball.pos.y + this.y*ms;
 	
-	newPos = this._gridCollision(newPos);
 	newPos = this._edgeCollision(newPos);
+	newPos = this._gridCollision(newPos);
 	newPos = this._padCollision(newPos);
 
 	return newPos;
@@ -238,6 +240,9 @@ Breakout.prototype._clear = function(){
 
 Breakout.prototype._draw = function(){
 	this._clear();
+
+	this.explode.draw();
+
 	this._drawGrid();
 	this._drawPlayer();
 	this._drawBall();
