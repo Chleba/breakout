@@ -1,5 +1,9 @@
 var Breakout = Breakout || {};
 
+Math._round = function(num){
+	return (0.5 + num) >>> 0;
+};
+
 Breakout.Ball = JAK.ClassMaker.makeClass({
 	NAME : 'Breakout.Ball'
 });
@@ -36,6 +40,7 @@ Breakout.Ball.prototype.$constructor = function(opt){
 };
 
 Breakout.Ball.prototype._edgeCollision = function(newPos){
+	console.log(newPos)
 	if(newPos.y < 0) {
 		newPos.y = -newPos.y;
 		this.y = -this.y;
@@ -108,8 +113,8 @@ Breakout.Ball.prototype.update = function(ms){
 		x : 0,
 		y : 0
 	};
-	newPos.x = this.pos.x + this.x*ms;
-	newPos.y = this.pos.y + this.y*ms;
+	newPos.x = Math.round(this.pos.x + this.x*ms);
+	newPos.y = Math.round(this.pos.y + this.y*ms);
 	
 	newPos = this._edgeCollision(newPos);
 	newPos = this._gridCollision(newPos);
