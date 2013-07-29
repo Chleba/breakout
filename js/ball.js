@@ -120,10 +120,10 @@ Breakout.Ball.prototype.update = function(ms){
 
 Breakout.Ball.prototype.draw = function(){
 	this.canvas.save();
-	//this.canvas.beginPath();
+	this.canvas.beginPath();
 	this.canvas.fillStyle = 'rgb(255,0,0)';
 	this.canvas.arc(this.pos.x, this.pos.y, this.opt.r, 0, 6.28, false);
 	this.canvas.fill();
-	//this.canvas.closePath();
+	this.canvas.closePath();
 	this.canvas.restore();
 };

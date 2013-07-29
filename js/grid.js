@@ -71,8 +71,8 @@ Breakout.Grid.prototype.getCoords = function(pos){
 
 Breakout.Grid.prototype.draw = function(){
 	this.canvas.save();
-	this.canvas.beginPath();
-	this.canvas.strokeStyle = 'rgb(0,0,0)';
+	//this.canvas.beginPath();
+	//this.canvas.strokeStyle = 'rgb(0,0,0)';
 	for(var i=0;i<this.grid.length;i++){
 		for(var j=0;j<this.grid[i].length;j++){
 			var item = this.grid[i][j];
@@ -86,11 +86,11 @@ Breakout.Grid.prototype.draw = function(){
 					y : i*size.h
 				};
 				this.canvas.fillStyle = item.color;
-				this.canvas.strokeRect(pos.x, pos.y, size.w, size.h);
+				//this.canvas.strokeRect(pos.x, pos.y, size.w, size.h);
 				this.canvas.fillRect(pos.x, pos.y, size.w, size.h);
 			}
 		}
 	}
-	this.canvas.closePath();
+	//this.canvas.closePath();
 	this.canvas.restore();
 };
