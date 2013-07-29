@@ -4,6 +4,10 @@ Math.randRange = function(min, max){
 	return rand
 }
 
+Math._round = function(num){
+	return (0.5 + num) >>> 0;
+};
+
 var Breakout = JAK.ClassMaker.makeClass({
 	NAME : 'Breakout'
 });
@@ -197,7 +201,8 @@ Breakout.prototype._getGridCoords = function(pos){
 Breakout.prototype._blockHit = function(coords, newPos){
 	var gi = this.config.gridItem;
 	this.grid[coords.y][coords.x].visible = false;
-	this.explode.boom(newPos);
+	var color = this.grid[coords.y][coords.x].color;
+	this.explode.boom(newPos, color);
 	var pos = {
 		x : coords.x*this.config.gridItem.w,
 		y : coords.y*this.config.gridItem.h
@@ -257,6 +262,7 @@ Breakout.prototype._draw = function(){
 
 Breakout.prototype._drawGrid = function(){
 	this.canvas.save();
+	this.canvas.beginPath();
 	this.canvas.strokeStyle = 'rgb(0,0,0)';
 	for(var i=0;i<this.grid.length;i++){
 		for(var j=0;j<this.grid[i].length;j++){
@@ -276,6 +282,7 @@ Breakout.prototype._drawGrid = function(){
 			}
 		}
 	}
+	this.canvas.closePath();
 	this.canvas.restore();
 };
 

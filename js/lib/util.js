@@ -218,7 +218,7 @@ Explo.prototype._mdown = function(e, elm){
 	this.pOpt.posY = this.pos.y - bPos.top;
 	this.boom();
 };
-Explo.prototype.boom = function(pos){
+Explo.prototype.boom = function(pos, color){
 	this.pos = pos;
 	this.pOpt.posX = this.pos.x;
 	this.pOpt.posY = this.pos.y;
@@ -226,6 +226,7 @@ Explo.prototype.boom = function(pos){
 	for(var i=0;i<40;i++){
 		var particle = new Particle(this.pOpt);
 		this.pOpt.angle += this.angleStep;
+		this.pOpt.color = color;
 		this.particles.push(particle);
 	}
 	this.pOpt.angle = 0;

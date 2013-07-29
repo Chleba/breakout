@@ -16,6 +16,7 @@ Particle.particles = [];
  **/
 Particle.prototype.$constructor = function(opt){
 	this.opt = {
+		color : 'red',
         angle : 0,
         speed : 0,
 		posX : 0,
@@ -102,7 +103,7 @@ Particle.prototype._drawRect = function(){
     c.rotate(this.rotate);
     c.translate((sw/2)*-1, (sh/2)*-1);
     
-    c.fillStyle = 'red';
+    c.fillStyle = this.opt.color;
     c.fillRect(0, 0, sw, sh);
     
     c.restore();
