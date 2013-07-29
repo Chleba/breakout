@@ -235,8 +235,8 @@ Breakout.prototype._updateBall = function(ms){
 		x : 0,
 		y : 0
 	};
-	newPos.x = Math._round(this.ball.pos.x + this.x*ms);
-	newPos.y = Math._round(this.ball.pos.y + this.y*ms);
+	newPos.x = this.ball.pos.x + this.x*ms;
+	newPos.y = this.ball.pos.y + this.y*ms;
 	
 	newPos = this._edgeCollision(newPos);
 	newPos = this._gridCollision(newPos);
