@@ -9,6 +9,12 @@ var Breakout = JAK.ClassMaker.makeClass({
 });
 
 Breakout.prototype.$constructor = function(root){
+	this.Stats = new Stats();
+    this.Stats.getDomElement().style.position = 'absolute';
+    this.Stats.getDomElement().style.left = '0px';
+    this.Stats.getDomElement().style.top = '0px';
+    document.body.appendChild( this.Stats.getDomElement() );
+
 	this.dom = {};
 	this.ec = [];
 
@@ -136,6 +142,7 @@ Breakout.prototype._tick = function(){
 };
 
 Breakout.prototype._update = function(ms){
+	this.Stats.update();
 	var pos = this._updateBall(ms);
 	this._setBallPos(pos);
 };
