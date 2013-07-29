@@ -61,7 +61,7 @@ Breakout.Grid.prototype._makeGrid = function(){
 Breakout.Grid.prototype.getCoords = function(pos){
 	var maxHeight = this.opt.gridItem.h * this.opt.h;
 	var coords = null;
-	if(pos.y <= maxHeight && pos.y >= 0 && pos.x >= 0 && pos.x <= this.opt.body.w){
+	if(pos.y < maxHeight && pos.y > 0 && pos.x > 0 && pos.x < this.opt.body.w){
 		coords = {};
 		coords.x = Math.floor(pos.x / this.opt.gridItem.w);
 		coords.y = Math.floor(pos.y / this.opt.gridItem.h);

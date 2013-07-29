@@ -39,8 +39,7 @@ Breakout.Ball.prototype.$constructor = function(opt){
 	this.pos = this.opt.pos;
 };
 
-Breakout.Ball.prototype._edgeCollision = function(newPos){
-	console.log(newPos)
+Breakout.Ball.prototype._edgeCollision = function(newPos){	
 	if(newPos.y < 0) {
 		newPos.y = -newPos.y;
 		this.y = -this.y;
