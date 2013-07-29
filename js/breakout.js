@@ -37,7 +37,7 @@ Breakout.Game.prototype.$constructor = function(root){
 
 Breakout.Game.prototype._config = function(){
 	this.config = {
-		SLEEPTIME : 2.5,
+		SLEEPTIME : 16,
 		PAUSEDSLEEPTIME : 100,
 		WIDTH : 600,
 		HEIGHT : 400,
@@ -114,19 +114,28 @@ Breakout.Game.prototype._makeGrid = function(){
 
 Breakout.Game.prototype._makeBall = function(){
 	this.y = 800/1000;
-	this.x = 1/1000;
+	this.x = 1/100;
+
+	var bPos = {
+		x : 300,
+		y : 300
+	};
+	var speed = 5;
+
+	var a = bPos.x + speed * Math.cos(this.angleToRad(90));
+	var b = bPos.y + speed * Math.sin(this.angleToRad(90));
+	this.x = a - bPos.x;
+	this.y = b - bPos.y;	
+
 	var ball = {
 		player : this.player,
 		grid : this.grid,
 		r : this.config.BALLDIAMETER / 2,
 		w : this.config.WIDTH,
 		h : this.config.HEIGHT,
-		speed : 5,
+		speed : speed,
 		maxbounce : this.config.MAXBOUNCEANGLE,
-		pos : {
-			x : 300,
-			y : 300
-		},
+		pos : bPos,
 		x : this.x,
 		y : this.y,
 		canvas : this.dom.canvas
