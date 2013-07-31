@@ -27,17 +27,20 @@ Breakout.Game.prototype.$constructor = function(root){
 	this.sigs = [];
 
 	this.dom.root = JAK.gel(root);
+	this.img = new Image();
+	this.spriteImage = './img/breakout_sprites.png';
 
 	this.timekeeper = JAK.Timekeeper.getInstance();
 
 	this._config();
-	this._build();
+	this._makeImages();
+	//this._build();
 	this._link();
 };
 
 Breakout.Game.prototype._config = function(){
 	this.config = {
-		SLEEPTIME : 16,
+		SLEEPTIME : 3,
 		PAUSEDSLEEPTIME : 100,
 		WIDTH : 600,
 		HEIGHT : 400,
@@ -49,7 +52,7 @@ Breakout.Game.prototype._config = function(){
 		MAXBOUNCEANGLE : (Math.PI/12),
 		grid : {
 			w : 40,
-			h : 10
+			h : 2
 		}
 	};
 	this.config.gridItem = {
@@ -61,6 +64,62 @@ Breakout.Game.prototype._config = function(){
 
 	// ball
 	this.balls = [];
+};
+
+Breakout.Game.prototype._makeImages = function(){
+	this.img = new Image();
+	this.ec.push( JAK.Events.addListener(this.img, 'load', this._imageLoaded.bind(this)) );
+	this.img.src = this.spriteImage;
+};
+
+Breakout.Game.prototype._imageLoaded = function(e, elm){
+	this.imgSize = {
+		w : this.img.width,
+		h : this.img.height
+	};
+
+	this.sprites = {};
+
+	this.dom.imageCanvas = JAK.mel('canvas', { width : this.config.gridItem.w, height : this.config.gridItem.h });
+	this.dom.root.appendChild(this.dom.imageCanvas);
+	this.imageCanvas = this.dom.imageCanvas.getContext('2d');
+	//this.imageCanvas.drawImage(this.img, 0, 0);
+
+	this._makeBrickSprites();
+
+	this._build();
+};
+
+Breakout.Game.prototype._makeBrickSprites = function(){
+	this.sprites.bricks = {};
+
+	// red
+	var img = new Image();
+	var brick = this.imageCanvas.drawImage(this.img, 0, 0, 32, 32, 0, 0, this.config.gridItem.w, this.config.gridItem.h);
+	var bd = this.dom.imageCanvas.toDataURL();
+	img.src = bd;
+	var obj = {
+		img : img,
+		color : 'rgb(255, 0, 0)',
+		hits : 1,
+		score : 50
+	};
+	this.sprites.bricks.red = obj;
+
+	this.imageCanvas.clearRect(0, 0, this.config.gridItem.w, this.config.gridItem.h);
+
+	// purple
+	img = new Image();
+	var brick = this.imageCanvas.drawImage(this.img, 39, 0, 32, 32, 0, 0, this.config.gridItem.w, this.config.gridItem.h);
+	var bd = this.dom.imageCanvas.toDataURL();
+	img.src = bd;
+	var obj = {
+		img : img,
+		color : 'rgb(255, 0, 255)',
+		hits : 1,
+		score : 100
+	};
+	this.sprites.bricks.purple = obj;
 };
 
 Breakout.Game.prototype.angleToRad = function(angle){
@@ -101,6 +160,7 @@ Breakout.Game.prototype._start = function(){
 
 Breakout.Game.prototype._makeGrid = function(){
 	var grid = {
+		bricks : this.sprites.bricks,
 		canvas : this.dom.canvas,
 		body : {
 			w : this.config.WIDTH,
@@ -121,12 +181,12 @@ Breakout.Game.prototype._makeBall = function(){
 		y : 300
 	};
 	var speed = 5;
-
+	/*
 	var a = bPos.x + speed * Math.cos(this.angleToRad(90));
 	var b = bPos.y + speed * Math.sin(this.angleToRad(90));
 	this.x = a - bPos.x;
 	this.y = b - bPos.y;	
-
+	*/
 	var ball = {
 		player : this.player,
 		grid : this.grid,

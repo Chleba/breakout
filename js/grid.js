@@ -12,6 +12,7 @@ Breakout.Grid = JAK.ClassMaker.makeClass({
 
 Breakout.Grid.prototype.$constructor = function(opt){
 	this.opt = {
+		bricks : {},
 		canvas : null,
 		body : {
 			w : 600,
@@ -48,11 +49,19 @@ Breakout.Grid.prototype._makeGrid = function(){
 	for(var i=0;i<this.opt.h;i++){
 		g = [];
 		for(var j=0;j<this.opt.w;j++){
+			/*
 			var obj = {
 				visible : true,
 				color : 'rgb('+Math.randRange(0,255)+','+Math.randRange(0,255)+','+Math.randRange(0,255)+')'
 			}
-			g.push(obj);
+			*/
+			var b = i === 0 ? this.opt.bricks.red : this.opt.bricks.purple;
+			var brick = {
+				visible : true,
+				img : b.img,
+				color : b.color
+			}
+			g.push(brick);
 		}
 		this.grid.push(g);
 	}
@@ -71,8 +80,8 @@ Breakout.Grid.prototype.getCoords = function(pos){
 
 Breakout.Grid.prototype.draw = function(){
 	this.canvas.save();
-	this.canvas.beginPath();
-	this.canvas.strokeStyle = 'rgb(0,0,0)';
+	//this.canvas.beginPath();
+	//this.canvas.strokeStyle = 'rgb(0,0,0)';
 	for(var i=0;i<this.grid.length;i++){
 		for(var j=0;j<this.grid[i].length;j++){
 			var item = this.grid[i][j];
@@ -85,12 +94,15 @@ Breakout.Grid.prototype.draw = function(){
 					x : j*size.w,
 					y : i*size.h
 				};
+				this.canvas.drawImage(item.img, pos.x, pos.y, size.w, size.h);
+				/*
 				this.canvas.fillStyle = item.color;
 				this.canvas.strokeRect(pos.x, pos.y, size.w, size.h);
 				this.canvas.fillRect(pos.x, pos.y, size.w, size.h);
+				*/
 			}
 		}
 	}
-	this.canvas.closePath();
+	//this.canvas.closePath();
 	this.canvas.restore();
 };
